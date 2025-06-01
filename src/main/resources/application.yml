@@ -1,6 +1,22 @@
 server:
   port: 8080
 
+# Configuración de SpringDoc OpenAPI con múltiples microservicios
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Gateway Microservice
+        url: /v3/api-docs
+      - name: Property Microservice
+        url: /v3/api-docs/property
+      - name: User Microservice
+        url: /v3/api-docs/user
+      - name: Visit Microservice
+        url: /v3/api-docs/visit
+  api-docs:
+    path: /v3/api-docs
+
 spring:
   application:
     name: gateway-microservice
@@ -22,42 +38,26 @@ spring:
             allowCredentials: false
       
       # Configuración de rutas a los microservicios
-      routes:
-        # ===== PROPERTY MICROSERVICE (Puerto 8081) =====
+      routes:        # ===== PROPERTY MICROSERVICE (Puerto 8081) =====
         
-        # Rutas de House (Propiedades) - Requiere autenticación
+        # Rutas de House (Propiedades)
         - id: house-create
           uri: http://localhost:8081
           predicates:
             - Path=/api/v1/house/create
             - Method=POST
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/house/create
-                replacement: /api/v1/house/create
         
         - id: house-list
           uri: http://localhost:8081
           predicates:
             - Path=/api/v1/house/read
             - Method=GET
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/house/read
-                replacement: /api/v1/house/read
         
         - id: house-by-id
           uri: http://localhost:8081
           predicates:
-            - Path=/api/v1/house/read/{id}
+            - Path=/api/v1/house/read/**
             - Method=GET
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/house/read/(?<id>.*)
-                replacement: /api/v1/house/read/$\{id}
         
         # Rutas de Categories (Categorías)
         - id: category-create
@@ -65,33 +65,18 @@ spring:
           predicates:
             - Path=/api/v1/category/create
             - Method=POST
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/category/create
-                replacement: /api/v1/category/create
         
         - id: category-list
           uri: http://localhost:8081
           predicates:
             - Path=/api/v1/category/read
             - Method=GET
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/category/read
-                replacement: /api/v1/category/read
         
         - id: category-delete
           uri: http://localhost:8081
           predicates:
-            - Path=/api/v1/category/{id}
+            - Path=/api/v1/category/**
             - Method=DELETE
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/category/(?<id>.*)
-                replacement: /api/v1/category/$\{id}
         
         # Rutas de Ubications (Ubicaciones)
         - id: ubication-create
@@ -99,126 +84,98 @@ spring:
           predicates:
             - Path=/api/v1/ubication/create
             - Method=POST
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/ubication/create
-                replacement: /api/v1/ubication/create
         
         - id: ubication-list
           uri: http://localhost:8081
           predicates:
             - Path=/api/v1/ubication/read
             - Method=GET
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/ubication/read
-                replacement: /api/v1/ubication/read
         
-        # Rutas de Departments (Departamentos)
+        # Rutas de Departments y Cities
         - id: departments-list
           uri: http://localhost:8081
           predicates:
             - Path=/api/v1/departments
             - Method=GET
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/departments
-                replacement: /api/v1/departments
         
-        # Rutas de Cities (Ciudades)
         - id: cities-by-department
           uri: http://localhost:8081
           predicates:
-            - Path=/api/v1/cities/departments/{departmentId}
+            - Path=/api/v1/cities/departments/**
             - Method=GET
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/cities/departments/(?<departmentId>.*)
-                replacement: /api/v1/cities/departments/$\{departmentId}
+                 # ===== USER MICROSERVICE (Puerto 8082) =====
         
-        # ===== USER MICROSERVICE (Puerto 8082) =====
-        
-        # Ruta de autenticación (AuthController)
         - id: user-auth-login
           uri: http://localhost:8082
           predicates:
             - Path=/api/v1/auth/login
             - Method=POST
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/auth/login
-                replacement: /api/v1/auth/login
         
-        # Ruta de creación de usuarios (UserController)
         - id: user-create
           uri: http://localhost:8082
           predicates:
             - Path=/api/v1/user/create
             - Method=POST
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/user/create
-                replacement: /api/v1/user/create
         
         # ===== VISIT MICROSERVICE (Puerto 8083) =====
         
-        # Rutas de AppointmentSlot (Horarios disponibles)
         - id: appointmentslot-create
           uri: http://localhost:8083
           predicates:
             - Path=/api/v1/appointmentslot/create
             - Method=POST
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/appointmentslot/create
-                replacement: /api/v1/appointmentslot/create
         
         - id: appointmentslot-read
           uri: http://localhost:8083
           predicates:
             - Path=/api/v1/appointmentslot/read
             - Method=GET
-          filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/appointmentslot/read
-                replacement: /api/v1/appointmentslot/read
         
-        # Rutas de Visit (Visitas)
         - id: visit-create
           uri: http://localhost:8083
           predicates:
             - Path=/api/v1/visit/create
             - Method=POST
+
+        # ===== RUTAS GENERALES PARA MICROSERVICIOS =====
+        
+        # Property microservice - todas las rutas que empiecen con /property
+        - id: property-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/property/**
           filters:
-            - name: RewritePath
-              args:
-                regexp: /api/v1/visit/create
-                replacement: /api/v1/visit/create
+            - StripPrefix=1
+        
+        # User microservice - todas las rutas que empiecen con /user  
+        - id: user-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+        
+        # Visit microservice - todas las rutas que empiecen con /visit
+        - id: visit-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/visit/**
+          filters:
+            - StripPrefix=1
 
 # Configuración de logging para debugging
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.web.reactive: DEBUG
-    reactor.netty: DEBUG
 
 # Configuración de gestión para health checks
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info
   endpoint:
     health:
       show-details: always
-    gateway:
-      enabled: true
 
