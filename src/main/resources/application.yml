@@ -1,5 +1,16 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+
+# Configuración de microservicios por entorno
+microservices:
+  property:
+    url: ${PROPERTY_SERVICE_URL:http://localhost:8081}
+  user:
+    url: ${USER_SERVICE_URL:http://localhost:8082}
+  visit:
+    url: ${VISIT_SERVICE_URL:http://localhost:8083}
+  gateway:
+    url: ${GATEWAY_SERVICE_URL:http://localhost:8080}
 
 springdoc:
   enable-native-support: true
@@ -38,124 +49,122 @@ spring:
       
       routes:
         - id: house-create
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/house/create
             - Method=POST
         
         - id: house-list
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/house/read
             - Method=GET
         
         - id: house-by-id
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/house/read/**
             - Method=GET
         
         - id: category-create
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/category/create
             - Method=POST
         
         - id: category-list
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/category/read
             - Method=GET
         
         - id: category-delete
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/category/**
             - Method=DELETE
         
         - id: ubication-create
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/ubication/create
             - Method=POST
         
         - id: ubication-list
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/ubication/read
             - Method=GET
         
         - id: departments-list
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/departments
             - Method=GET
         
         - id: cities-by-department
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/api/v1/cities/departments/**
             - Method=GET
 
 
         - id: user-auth-login
-          uri: http://localhost:8082
+          uri: ${microservices.user.url}
           predicates:
             - Path=/api/v1/auth/login
             - Method=POST
         
         - id: user-create
-          uri: http://localhost:8082
+          uri: ${microservices.user.url}
           predicates:
             - Path=/api/v1/user/create
             - Method=POST
         
         
         - id: appointmentslot-create
-          uri: http://localhost:8083
+          uri: ${microservices.visit.url}
           predicates:
             - Path=/api/v1/appointmentslot/create
             - Method=POST
         
         - id: appointmentslot-read
-          uri: http://localhost:8083
+          uri: ${microservices.visit.url}
           predicates:
             - Path=/api/v1/appointmentslot/read
             - Method=GET
         
         - id: visit-create
-          uri: http://localhost:8083
+          uri: ${microservices.visit.url}
           predicates:
             - Path=/api/v1/visit/create
             - Method=POST
 
        
         - id: property-service
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/property/**
           filters:
             - StripPrefix=1
         
         - id: user-service
-          uri: http://localhost:8082
+          uri: ${microservices.user.url}
           predicates:
             - Path=/user/**
           filters:
             - StripPrefix=1
         
         - id: visit-service
-          uri: http://localhost:8083
+          uri: ${microservices.visit.url}
           predicates:
             - Path=/visit/**
           filters:
             - StripPrefix=1
 
-        # ===== RUTAS ESPECÍFICAS PARA API DOCS (Siguiendo guía Medium) =====
-        
         # Property Microservice API Docs
         - id: property-api-docs
-          uri: http://localhost:8081
+          uri: ${microservices.property.url}
           predicates:
             - Path=/v3/api-docs/property
           filters:
@@ -163,7 +172,7 @@ spring:
         
         # User Microservice API Docs
         - id: user-api-docs
-          uri: http://localhost:8082
+          uri: ${microservices.user.url}
           predicates:
             - Path=/v3/api-docs/user
           filters:
@@ -171,19 +180,17 @@ spring:
         
         # Visit Microservice API Docs
         - id: visit-api-docs
-          uri: http://localhost:8083
+          uri: ${microservices.visit.url}
           predicates:
             - Path=/v3/api-docs/visit
           filters:
             - RewritePath=/v3/api-docs/visit, /v3/api-docs
 
-# Configuración de logging para debugging
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.web.reactive: DEBUG
 
-# Configuración de gestión para health checks
 management:
   endpoints:
     web:
