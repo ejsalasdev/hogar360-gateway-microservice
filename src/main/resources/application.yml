@@ -33,22 +33,6 @@ spring:
     name: gateway-microservice
   cloud:
     gateway:
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins:
-              - "https://app.hogar360.site"
-              - "http://localhost:4200"
-              - "https://localhost:4200"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - PATCH
-              - OPTIONS
-            allowedHeaders: "*"
-            allowCredentials: true
       
       routes:
         - id: house-create
